@@ -1,0 +1,18 @@
+&ACCESS RVP
+&REL 1
+&COMMENT Data list for CONVEYOR_TRACK
+DEFDAT CONVEYOR_TRACK
+  DECL FRAME fDynamicOffset = {X 0.0, Y 0.0, Z 0.0, A 0.0, B 0.0, C 0.0}
+
+  ; Conveyor dynamic pick points
+  DECL POS P_TRACK_APPROACH = {X 400.0, Y 200.0, Z 300.0, A 0.0, B 90.0, C 0.0}
+  DECL POS P_TRACK_PICK = {X 400.0, Y 200.0, Z 200.0, A 0.0, B 90.0, C 0.0}
+
+  ; Destination Pallet A
+  DECL POS P_PALLET_A_APPROACH = {X 450.0, Y -200.0, Z 350.0, A 0.0, B 90.0, C 0.0}
+  DECL POS P_PALLET_A_DROP = {X 450.0, Y -200.0, Z 220.0, A 0.0, B 90.0, C 0.0}
+
+  ; Destination Pallet B
+  DECL POS P_PALLET_B_APPROACH = {X 350.0, Y -200.0, Z 350.0, A 0.0, B 90.0, C 0.0}
+  DECL POS P_PALLET_B_DROP = {X 350.0, Y -200.0, Z 220.0, A 0.0, B 90.0, C 0.0}
+ENDDAT

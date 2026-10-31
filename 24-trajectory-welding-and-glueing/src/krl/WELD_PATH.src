@@ -1,0 +1,51 @@
+&ACCESS RVP
+&REL 1
+&COMMENT Continuous Trajectory Arc Welding & Glue Dispensing Path
+DEF WELD_PATH( )
+  ; =========================================================
+  ; Lesson 24: Industrial Welding & Glueing Application
+  ; Robot: KUKA KR 6 R900-2 (KR C4)
+  ; =========================================================
+
+  ; INI
+  BAS (#INITMOV, 0)
+
+  ; Set process speed and fine continuous approximation
+  $VEL.CP = 0.03      ; 30 mm/s welding/dispensing travel speed
+  $ACC.CP = 0.5       ; Smooth acceleration
+  $APO.CDIS = 2.0     ; 2mm precision approximation
+
+  ; Safe Home
+  PTP XHOME
+
+  ; Move to pre-weld standoff point
+  PTP P_WELD_START : {X 0.0, Y 0.0, Z 30.0, A 0.0, B 0.0, C 0.0}
+
+  ; Approach start of weld seam
+  LIN P_WELD_START
+
+  ; Arc on / Dispenser trigger
+  $OUT[20] = TRUE  ; Gas purge / Extruder enable
+  WAIT SEC 0.2
+  $OUT[21] = TRUE  ; Arc Strike / Flow On
+
+  ; Execute 3D curved seam
+  SPLINE
+    SPL P_SEAM_1
+    SPL P_SEAM_2
+    SPL P_SEAM_3
+    SPL P_WELD_END
+  ENDSPLINE
+
+  ; Arc off / Stop dispenser flow
+  $OUT[21] = FALSE ; Arc Off
+  WAIT SEC 0.1
+  $OUT[20] = FALSE ; Gas Off
+
+  ; Retract cleanly
+  LIN P_WELD_END : {X 0.0, Y 0.0, Z 50.0, A 0.0, B 0.0, C 0.0}
+
+  ; Return Home
+  PTP XHOME
+
+END

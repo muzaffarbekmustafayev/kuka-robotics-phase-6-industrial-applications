@@ -1,0 +1,72 @@
+&ACCESS RVP
+&REL 1
+&COMMENT Dynamic Conveyor Tracking and Sorter Master Routine
+DEF CONVEYOR_TRACK( )
+  ; =========================================================
+  ; Lesson 25: Conveyor Tracking (Line Tracking) & Palletizing
+  ; Robot: KUKA KR 6 R900-2 (KR C4)
+  ; Description: Dynamically synchronizes robot TCP with moving conveyor
+  ; =========================================================
+
+  ; INI
+  BAS (#INITMOV, 0)
+  $VEL.CP = 0.5
+  $ACC.CP = 1.0
+
+  ; Home positioning
+  PTP XHOME
+
+  LOOP
+    ; Wait for photocell detection trigger
+    WAIT FOR $IN[12] == TRUE
+
+    ; Check if within active tracking window
+    IF ($IN[13] == TRUE) THEN
+      ; Synchronize Base coordinate system to moving part
+      ; KUKA ConveyorTech / Dynamic Base update
+      $BASE = BASE_DATA[2] : fDynamicOffset
+
+      ; Approach tracking point on conveyor
+      LIN P_TRACK_APPROACH C_DIS
+
+      ; Grip part while moving synchronously
+      LIN P_TRACK_PICK
+      $OUT[1] = TRUE   ; Engage vacuum/gripper
+      WAIT SEC 0.15
+
+      ; Retract vertically relative to conveyor
+      LIN P_TRACK_APPROACH C_DIS
+
+      ; Restore Static Base
+      $BASE = $NULLFRAME
+
+      ; Sort and place on destination pallet according to type
+      IF $IN[14] == TRUE THEN
+        PLACE_PALLET_A()
+      ELSE
+        PLACE_PALLET_B()
+      ENDIF
+
+    ENDIF
+  ENDLOOP
+
+  ; Safe shutdown
+  PTP XHOME
+
+END
+
+DEF PLACE_PALLET_A()
+  PTP P_PALLET_A_APPROACH C_PTP
+  LIN P_PALLET_A_DROP
+  $OUT[1] = FALSE  ; Release
+  WAIT SEC 0.15
+  LIN P_PALLET_A_APPROACH C_DIS
+END
+
+DEF PLACE_PALLET_B()
+  PTP P_PALLET_B_APPROACH C_PTP
+  LIN P_PALLET_B_DROP
+  $OUT[1] = FALSE  ; Release
+  WAIT SEC 0.15
+  LIN P_PALLET_B_APPROACH C_DIS
+END
